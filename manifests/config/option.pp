@@ -24,7 +24,7 @@ define wordpress::config::option(
   String $wp_option_name,
   String $wp_option_value,
   String $wpcli_bin,
-  Boolean $json,
+  Optional[Boolean] $json = false,
 ) {
 
   $wp_params = $json ? {
