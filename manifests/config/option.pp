@@ -13,6 +13,8 @@
 # The desired value of the option to be configured.
 #@param wpcli_bin
 #  The path of the WP-CLI tool.
+#@param json
+#  Input data is in JSON or plaintext (default)
 #@note This defined type should be considered as private.
 #
 define wordpress::config::option(
@@ -22,13 +24,19 @@ define wordpress::config::option(
   String $wp_option_name,
   String $wp_option_value,
   String $wpcli_bin,
+  Boolean $json,
 ) {
 
+  $wp_params = $json ? {
+    default => '',
+    true    => '--format=json',
+  }
+
   exec { "${wp_servername} > update ${wp_option_name}" :
-    command => "${wpcli_bin} option update ${wp_option_name} '${wp_option_value}'",
+    command => "${wpcli_bin} option update ${wp_option_name} '${wp_option_value}' ${wp_params}",
     cwd     => $wp_root,
     user    => $owner,
-    unless  => "${wpcli_bin} option get ${wp_option_name} | /bin/grep -q '^${wp_option_value}'",
+    unless  => "${wpcli_bin} option get ${wp_option_name} ${wp_params}| /bin/fgrep -xq '${wp_option_value}'",
   }
 
 }
